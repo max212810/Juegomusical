@@ -1,8 +1,6 @@
-// Configuración de tiempos para cada intento (en segundos)
 const DURATIONS = [1, 2, 4, 7, 11, 16];
 const MAX_ATTEMPTS = 6;
 
-// Variables de Estado
 let allSongs = [];
 let targetSong = null;
 let currentAttempt = 0;
@@ -11,7 +9,6 @@ let isPlayerReady = false;
 let checkInterval = null;
 let selectedSongFromList = null;
 
-// Referencias del DOM
 const playBtn = document.getElementById('play-btn');
 const skipBtn = document.getElementById('skip-btn');
 const submitBtn = document.getElementById('submit-btn');
@@ -26,50 +23,66 @@ const gameResultTitle = document.getElementById('game-result-title');
 const revealedSongText = document.getElementById('revealed-song');
 const youtubeLink = document.getElementById('youtube-link');
 
-// 1. Cargar la API de YouTube Iframe
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('youtube-player', {
-    height: '1',
-    width: '1',
-    playerVars: {
-      'autoplay': 0,
-      'controls': 0,
-      'disablekb': 1
-    },
-    events: {
-      'onReady': onPlayerReady
-    }
-  });
-}
-
-function onPlayerReady() {
-  isPlayerReady = true;
-  loadSongsData();
-}
-
-// 2. Cargar archivo JSON de canciones
+// 1. Cargar las canciones primero
 async function loadSongsData() {
   try {
     const response = await fetch('songs.json');
     allSongs = await response.json();
-    initGame();
+    
+    // Si la API de YouTube ya estaba lista, iniciar juego
+    if (isPlayerReady) {
+      initGame();
+    }
   } catch (error) {
     console.error('Error al cargar songs.json:', error);
   }
 }
 
+// Cargar canciones al iniciar
+loadSongsData();
+
+// 2. Función global llamada por la API de YouTube
+window.onYouTubeIframeAPIReady = function() {
+  player = new YT.Player('youtube-player', {
+    height: '200',
+    width: '200',
+    playerVars: {
+      'autoplay': 0,
+      'controls': 0,
+      'playsinline': 1
+    },
+    events: {
+      'onReady': onPlayerReady,
+      'onError': onPlayerError
+    }
+  });
+};
+
+function onPlayerReady() {
+  isPlayerReady = true;
+  if (allSongs.length > 0) {
+    initGame();
+  }
+}
+
+// Detección de errores de reproducción de YouTube
+function onPlayerError(e) {
+  console.warn("YouTube Player Error Code:", e.data);
+  if (e.data === 101 || e.data === 150) {
+    alert("Esta canción no se puede reproducir fuera de YouTube por derechos de autor. Intenta recargar para jugar con otra canción.");
+  }
+}
+
 // 3. Inicializar / Reiniciar Juego
 function initGame() {
-  // Resetear Variables
   currentAttempt = 0;
   selectedSongFromList = null;
   songInput.value = '';
   suggestionsList.innerHTML = '';
   
-  // Seleccionar una canción aleatoria de la lista
+  // Seleccionar canción aleatoria
   targetSong = allSongs[Math.floor(Math.random() * allSongs.length)];
   
-  // Cargar el vídeo en YouTube pero en pausa
   if (player && isPlayerReady) {
     player.cueVideoById({
       videoId: targetSong.youtubeId,
@@ -77,18 +90,16 @@ function initGame() {
     });
   }
 
-  // Resetear UI
   resetUI();
 }
 
 function resetUI() {
-  currentDurationSpan.innerText = `${DURATIONS[0]}s`;
-  progressBar.style.width = '0%';
+  playBtn.innerHTML = `▶ Reproducing (<span id="current-duration">${DURATIONS[0]}s</span>)`;
   playBtn.disabled = false;
+  progressBar.style.width = '0%';
   searchSection.classList.remove('hidden');
   gameOverScreen.classList.add('hidden');
 
-  // Limpiar cajas de intentos
   for (let i = 0; i < MAX_ATTEMPTS; i++) {
     const box = document.getElementById(`attempt-${i}`);
     box.className = 'attempt-box';
@@ -96,7 +107,7 @@ function resetUI() {
   }
 }
 
-// 4. Lógica de Reproducción de Audio
+// 4. Reproducción del fragmento
 playBtn.addEventListener('click', playSnippet);
 
 function playSnippet() {
@@ -108,21 +119,16 @@ function playSnippet() {
   player.seekTo(start, true);
   player.playVideo();
 
-  // Resetear barra de progreso
   progressBar.style.width = '0%';
-
   clearInterval(checkInterval);
 
-  // Intervalo para detener el audio exactamente a la duración requerida
   checkInterval = setInterval(() => {
     const currentTime = player.getCurrentTime();
     const elapsedTime = currentTime - start;
 
-    // Actualizar animación de la barra
     const percentage = Math.min((elapsedTime / maxDuration) * 100, 100);
     progressBar.style.width = `${percentage}%`;
 
-    // Si llega al límite de tiempo del intento actual, pausar
     if (elapsedTime >= maxDuration) {
       player.pauseVideo();
       clearInterval(checkInterval);
@@ -131,7 +137,7 @@ function playSnippet() {
   }, 50);
 }
 
-// 5. Autocompletado e Input
+// 5. Búsqueda y Autocompletado
 songInput.addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
   suggestionsList.innerHTML = '';
@@ -155,14 +161,13 @@ songInput.addEventListener('input', (e) => {
   });
 });
 
-// Ocultar sugerencias si se hace clic fuera
 document.addEventListener('click', (e) => {
   if (!songInput.contains(e.target)) {
     suggestionsList.innerHTML = '';
   }
 });
 
-// 6. Botones de Enviar y Saltar
+// 6. Enviar y Saltar
 submitBtn.addEventListener('click', handleGuess);
 skipBtn.addEventListener('click', handleSkip);
 
@@ -174,7 +179,6 @@ function handleGuess() {
 
   if (!userText) return;
 
-  // Comprobar si eligió la opción correcta
   const isCorrect = selectedSongFromList?.id === targetSong.id || 
     userText === `${targetSong.artist} - ${targetSong.title}`.toLowerCase() ||
     userText === targetSong.title.toLowerCase();
@@ -207,13 +211,14 @@ function nextAttempt() {
   currentAttempt++;
 
   if (currentAttempt < MAX_ATTEMPTS) {
-    currentDurationSpan.innerText = `${DURATIONS[currentAttempt]}s`;
+    const durationSpan = document.getElementById('current-duration');
+    if (durationSpan) durationSpan.innerText = `${DURATIONS[currentAttempt]}s`;
   } else {
-    endGame(false); // Perdió
+    endGame(false);
   }
 }
 
-// 7. Fin del Juego y Redirección a YouTube
+// 7. Fin del Juego
 function endGame(hasWon) {
   clearInterval(checkInterval);
   player.pauseVideo();
@@ -231,7 +236,6 @@ function endGame(hasWon) {
 
   revealedSongText.innerText = `La canción era: ${targetSong.artist} - ${targetSong.title}`;
 
-  // Configurar enlace para redirigir a YouTube
   const youtubeUrl = `https://www.youtube.com/watch?v=${targetSong.youtubeId}`;
   youtubeLink.setAttribute('href', youtubeUrl);
 }
