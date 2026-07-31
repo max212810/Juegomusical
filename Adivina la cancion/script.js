@@ -1,3 +1,5 @@
+
+
 const DURATIONS = [1, 2, 4, 7, 11, 16];
 const MAX_ATTEMPTS = 6;
 
@@ -16,40 +18,43 @@ const restartBtn = document.getElementById('restart-btn');
 const songInput = document.getElementById('song-input');
 const suggestionsList = document.getElementById('suggestions');
 const progressBar = document.getElementById('progress-bar');
-const currentDurationSpan = document.getElementById('current-duration');
 const searchSection = document.getElementById('search-section');
 const gameOverScreen = document.getElementById('game-over-screen');
 const gameResultTitle = document.getElementById('game-result-title');
 const revealedSongText = document.getElementById('revealed-song');
 const youtubeLink = document.getElementById('youtube-link');
 
-// 1. Cargar las canciones primero
+// 1. Cargar el JSON de canciones
 async function loadSongsData() {
   try {
     const response = await fetch('songs.json');
+    if (!response.ok) throw new Error("No se pudo cargar songs.json");
     allSongs = await response.json();
     
-    // Si la API de YouTube ya estaba lista, iniciar juego
+    // Si el reproductor de YouTube ya cargó primero, iniciar juego
     if (isPlayerReady) {
       initGame();
     }
   } catch (error) {
     console.error('Error al cargar songs.json:', error);
+    playBtn.innerText = '❌ Error al cargar canciones';
   }
 }
 
-// Cargar canciones al iniciar
 loadSongsData();
 
-// 2. Función global llamada por la API de YouTube
+// 2. Definir la función global para YouTube ANTES de inyectar el script
 window.onYouTubeIframeAPIReady = function() {
+  console.log("YouTube API conectada correctamente");
   player = new YT.Player('youtube-player', {
     height: '200',
     width: '200',
+    videoId: 'fHI8X4OX7dE',
     playerVars: {
       'autoplay': 0,
       'controls': 0,
-      'playsinline': 1
+      'playsinline': 1,
+      'origin': window.location.origin // Imprescindible para Vercel / HTTPS
     },
     events: {
       'onReady': onPlayerReady,
@@ -58,29 +63,34 @@ window.onYouTubeIframeAPIReady = function() {
   });
 };
 
+// 3. Inyección dinámica del script de YouTube (Garantiza el orden de ejecución)
+const ytScript = document.createElement('script');
+ytScript.src = "https://www.youtube.com/iframe_api";
+const firstScript = document.getElementsByTagName('script')[0];
+firstScript.parentNode.insertBefore(ytScript, firstScript);
+
 function onPlayerReady() {
+  console.log("Reproductor de YouTube Listo!");
   isPlayerReady = true;
   if (allSongs.length > 0) {
     initGame();
   }
 }
 
-// Detección de errores de reproducción de YouTube
 function onPlayerError(e) {
-  console.warn("YouTube Player Error Code:", e.data);
+  console.warn("Error en el vídeo de YouTube:", e.data);
   if (e.data === 101 || e.data === 150) {
-    alert("Esta canción no se puede reproducir fuera de YouTube por derechos de autor. Intenta recargar para jugar con otra canción.");
+    alert("Esta canción no permite reproducción incrustada en otras webs. Presiona 'Jugar de nuevo'.");
   }
 }
 
-// 3. Inicializar / Reiniciar Juego
+// 4. Inicializar / Reiniciar Juego
 function initGame() {
   currentAttempt = 0;
   selectedSongFromList = null;
   songInput.value = '';
   suggestionsList.innerHTML = '';
   
-  // Seleccionar canción aleatoria
   targetSong = allSongs[Math.floor(Math.random() * allSongs.length)];
   
   if (player && isPlayerReady) {
@@ -94,7 +104,7 @@ function initGame() {
 }
 
 function resetUI() {
-  playBtn.innerHTML = `▶ Reproducing (<span id="current-duration">${DURATIONS[0]}s</span>)`;
+  playBtn.innerHTML = `▶ Reproducir (<span id="current-duration">${DURATIONS[0]}s</span>)`;
   playBtn.disabled = false;
   progressBar.style.width = '0%';
   searchSection.classList.remove('hidden');
@@ -107,7 +117,7 @@ function resetUI() {
   }
 }
 
-// 4. Reproducción del fragmento
+// 5. Reproducción
 playBtn.addEventListener('click', playSnippet);
 
 function playSnippet() {
@@ -137,7 +147,7 @@ function playSnippet() {
   }, 50);
 }
 
-// 5. Búsqueda y Autocompletado
+// 6. Búsqueda y Autocompletado
 songInput.addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
   suggestionsList.innerHTML = '';
@@ -167,7 +177,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// 6. Enviar y Saltar
+// 7. Enviar y Saltar
 submitBtn.addEventListener('click', handleGuess);
 skipBtn.addEventListener('click', handleSkip);
 
@@ -218,7 +228,7 @@ function nextAttempt() {
   }
 }
 
-// 7. Fin del Juego
+// 8. Fin del Juego
 function endGame(hasWon) {
   clearInterval(checkInterval);
   player.pauseVideo();
