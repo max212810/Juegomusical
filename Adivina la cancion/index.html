@@ -23,13 +23,22 @@
       <div class="attempt-box" id="attempt-5">16s</div>
     </div>
 
-    <!-- Reproductor de Audio -->
+    <!-- Reproductor de YouTube Cubierto -->
+    <div class="media-box">
+      <div id="youtube-player"></div>
+      <div id="video-overlay" class="video-overlay">
+        <div class="disc-icon">📻</div>
+        <p>Audio del juego</p>
+      </div>
+    </div>
+
+    <!-- Controles -->
     <div class="player-controls">
       <div class="progress-bar-container">
         <div class="progress-bar" id="progress-bar"></div>
       </div>
       <button id="play-btn" class="btn btn-primary" disabled>
-        ⏳ Cargando reproductor...
+        ⏳ Cargando juego...
       </button>
     </div>
 
@@ -52,19 +61,13 @@
       
       <div class="end-actions">
         <a id="youtube-link" href="#" target="_blank" class="btn btn-yt">
-          🔴 Ver en YouTube
+          🔴 Abrir en YouTube
         </a>
         <button id="restart-btn" class="btn btn-primary">Jugar de nuevo</button>
       </div>
     </div>
   </div>
 
-  <!-- Contenedor del reproductor de YouTube -->
-  <div class="yt-hidden">
-    <div id="youtube-player"></div>
-  </div>
-
-  <!-- Solo cargamos script.js (él inyectará a YouTube dinámicamente) -->
   <script src="script.js"></script>
 </body>
 </html>
