@@ -104,11 +104,11 @@ function initGame() {
 }
 
 function resetUI() {
-  // Habilitar el botón y eliminar el atributo disabled
+  // Quitamos la restricción del botón explícitamente en el DOM
   playBtn.disabled = false;
   playBtn.removeAttribute('disabled');
   
-  playBtn.innerHTML = `▶ Reproducir (<span id="current-duration">${DURATIONS[0]}s</span>)`;
+  playBtn.innerHTML = `▶ Reproducir (<span id="current-duration">${DURATIONS[currentAttempt]}s</span>)`;
   progressBar.style.width = '0%';
   searchSection.classList.remove('hidden');
   gameOverScreen.classList.add('hidden');
@@ -120,13 +120,10 @@ function resetUI() {
   }
 }
 
-// 5. Reproducción del fragmento de audio
-playBtn.addEventListener('click', playSnippet);
-
 function playSnippet() {
   if (!isPlayerReady || !player) return;
 
-  // Desmutear audio explícitamente (Requerido por los navegadores)
+  // Desmutear y asegurar volumen al hacer clic (Requerido por Chrome/Edge)
   if (typeof player.unMute === 'function') {
     player.unMute();
     player.setVolume(100);
