@@ -1,5 +1,3 @@
-
-
 const DURATIONS = [1, 2, 4, 7, 11, 16];
 const MAX_ATTEMPTS = 6;
 
@@ -18,6 +16,7 @@ const restartBtn = document.getElementById('restart-btn');
 const songInput = document.getElementById('song-input');
 const suggestionsList = document.getElementById('suggestions');
 const progressBar = document.getElementById('progress-bar');
+const videoOverlay = document.getElementById('video-overlay');
 const searchSection = document.getElementById('search-section');
 const gameOverScreen = document.getElementById('game-over-screen');
 const gameResultTitle = document.getElementById('game-result-title');
@@ -31,7 +30,6 @@ async function loadSongsData() {
     if (!response.ok) throw new Error("No se pudo cargar songs.json");
     allSongs = await response.json();
     
-    // Si la API de YouTube cargó antes, iniciar el juego
     if (isPlayerReady) {
       initGame();
     }
@@ -43,12 +41,11 @@ async function loadSongsData() {
 
 loadSongsData();
 
-// 2. Registrar el evento global que requiere la API de YouTube
+// 2. Evento API de YouTube
 window.onYouTubeIframeAPIReady = function() {
-  console.log("Conectando con la API de YouTube...");
   player = new YT.Player('youtube-player', {
-    height: '200',
-    width: '200',
+    height: '100%',
+    width: '100%',
     videoId: 'fHI8X4OX7dE',
     playerVars: {
       'autoplay': 0,
@@ -63,14 +60,13 @@ window.onYouTubeIframeAPIReady = function() {
   });
 };
 
-// 3. Inyección dinámica del script de YouTube (Solución para Vercel)
+// 3. Cargar la API de YouTube dinámicamente
 const ytScript = document.createElement('script');
 ytScript.src = "https://www.youtube.com/iframe_api";
 const firstScript = document.getElementsByTagName('script')[0];
 firstScript.parentNode.insertBefore(ytScript, firstScript);
 
 function onPlayerReady() {
-  console.log("Reproductor de YouTube Listo!");
   isPlayerReady = true;
   if (allSongs.length > 0) {
     initGame();
@@ -78,9 +74,9 @@ function onPlayerReady() {
 }
 
 function onPlayerError(e) {
-  console.warn("Error en la reproducción de YouTube:", e.data);
+  console.warn("Error en YouTube:", e.data);
   if (e.data === 101 || e.data === 150) {
-    alert("Esta canción no permite reproducción en sitios externos. Presiona 'Jugar de nuevo' para cambiar de canción.");
+    alert("Esta canción está protegida. Presiona 'Jugar de nuevo' para cambiar de canción.");
   }
 }
 
@@ -90,6 +86,8 @@ function initGame() {
   selectedSongFromList = null;
   songInput.value = '';
   suggestionsList.innerHTML = '';
+  
+  videoOverlay.classList.remove('revealed');
   
   targetSong = allSongs[Math.floor(Math.random() * allSongs.length)];
   
@@ -104,11 +102,9 @@ function initGame() {
 }
 
 function resetUI() {
-  // Quitamos la restricción del botón explícitamente en el DOM
   playBtn.disabled = false;
   playBtn.removeAttribute('disabled');
-  
-  playBtn.innerHTML = `▶ Reproducir (<span id="current-duration">${DURATIONS[currentAttempt]}s</span>)`;
+  playBtn.innerHTML = `▶ Reproducir (<span id="current-duration">${DURATIONS[0]}s</span>)`;
   progressBar.style.width = '0%';
   searchSection.classList.remove('hidden');
   gameOverScreen.classList.add('hidden');
@@ -120,10 +116,12 @@ function resetUI() {
   }
 }
 
+// 5. Reproducción de Audio
+playBtn.addEventListener('click', playSnippet);
+
 function playSnippet() {
   if (!isPlayerReady || !player) return;
 
-  // Desmutear y asegurar volumen al hacer clic (Requerido por Chrome/Edge)
   if (typeof player.unMute === 'function') {
     player.unMute();
     player.setVolume(100);
@@ -234,10 +232,13 @@ function nextAttempt() {
   }
 }
 
-// 8. Fin del Juego y Redirección
+// 8. Fin del Juego (Revela la carátula)
 function endGame(hasWon) {
   clearInterval(checkInterval);
   player.pauseVideo();
+
+  // Revela la pantalla del vídeo de YouTube quitando la capa
+  videoOverlay.classList.add('revealed');
 
   searchSection.classList.add('hidden');
   gameOverScreen.classList.remove('hidden');
