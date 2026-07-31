@@ -249,3 +249,14 @@ input[type="text"]:focus {
   pointer-events: none;
   z-index: -999;
 }
+
+/* Forzar estado del botón de reproducir */
+#play-btn:not([disabled]) {
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+#play-btn[disabled] {
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
