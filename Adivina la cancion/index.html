@@ -29,7 +29,7 @@
         <div class="progress-bar" id="progress-bar"></div>
       </div>
       <button id="play-btn" class="btn btn-primary" disabled>
-        ▶ Reproducir (<span id="current-duration">1s</span>)
+        ⏳ Cargando reproductor...
       </button>
     </div>
 
@@ -45,13 +45,12 @@
       </div>
     </div>
 
-    <!-- Pantalla de Fin de Juego (Oculta al inicio) -->
+    <!-- Pantalla de Fin de Juego -->
     <div id="game-over-screen" class="game-over hidden">
       <h2 id="game-result-title"></h2>
       <p id="revealed-song"></p>
       
       <div class="end-actions">
-        <!-- Enlace directo a YouTube -->
         <a id="youtube-link" href="#" target="_blank" class="btn btn-yt">
           🔴 Ver en YouTube
         </a>
@@ -60,13 +59,13 @@
     </div>
   </div>
 
-  <!-- Reproductor Oculto de YouTube (Fuera de la vista para que el audio funcione sin que el navegador bloquee el vídeo) -->
+  <!-- Contenedor del reproductor de YouTube -->
   <div class="yt-hidden">
     <div id="youtube-player"></div>
   </div>
 
-  <!-- Carga de la API de YouTube y de la lógica -->
-  <script src="https://www.youtube.com/iframe_api"></script>
+  <!-- IMPORTANTE: Cargar script.js PRIMERO y LUEGO la API de YouTube -->
   <script src="script.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
