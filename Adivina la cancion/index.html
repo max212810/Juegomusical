@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Songless - Juego de Música</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎵 Songless</h1>
+      <p>Escucha el fragmento y adivina la canción</p>
+    </header>
+
+    <!-- Lista de Intentos -->
+    <div class="attempts-container" id="attempts-container">
+      <div class="attempt-box" id="attempt-0">1s</div>
+      <div class="attempt-box" id="attempt-1">2s</div>
+      <div class="attempt-box" id="attempt-2">4s</div>
+      <div class="attempt-box" id="attempt-3">7s</div>
+      <div class="attempt-box" id="attempt-4">11s</div>
+      <div class="attempt-box" id="attempt-5">16s</div>
+    </div>
+
+    <!-- Reproductor de Audio -->
+    <div class="player-controls">
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <button id="play-btn" class="btn btn-primary" disabled>
+        ▶ Reproducir (<span id="current-duration">1s</span>)
+      </button>
+    </div>
+
+    <!-- Input y Buscador -->
+    <div class="search-container" id="search-section">
+      <div class="input-wrapper">
+        <input type="text" id="song-input" placeholder="Escribe el título o artista..." autocomplete="off">
+        <ul id="suggestions" class="suggestions-list"></ul>
+      </div>
+      <div class="button-group">
+        <button id="skip-btn" class="btn btn-secondary">Saltar (+1s)</button>
+        <button id="submit-btn" class="btn btn-success">Enviar</button>
+      </div>
+    </div>
+
+    <!-- Pantalla de Fin de Juego (Oculta al inicio) -->
+    <div id="game-over-screen" class="game-over hidden">
+      <h2 id="game-result-title"></h2>
+      <p id="revealed-song"></p>
+      
+      <div class="end-actions">
+        <!-- Enlace directo a YouTube -->
+        <a id="youtube-link" href="#" target="_blank" class="btn btn-yt">
+          🔴 Ver en YouTube
+        </a>
+        <button id="restart-btn" class="btn btn-primary">Jugar de nuevo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reproductor Oculto de YouTube (Fuera de la vista para que el audio funcione sin que el navegador bloquee el vídeo) -->
+  <div class="yt-hidden">
+    <div id="youtube-player"></div>
+  </div>
+
+  <!-- Carga de la API de YouTube y de la lógica -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="script.js"></script>
+</body>
+</html>
