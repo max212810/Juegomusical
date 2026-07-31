@@ -1,7 +1,7 @@
 :root {
   --bg-color: #121212;
   --card-bg: #1e1e1e;
-  --primary-color: #1db954; /* Verde estilo Spotify */
+  --primary-color: #1db954;
   --text-color: #ffffff;
   --text-secondary: #b3b3b3;
   --danger-color: #e74c3c;
@@ -149,7 +149,7 @@ header p {
   margin-bottom: 10px;
 }
 
-/* Buscador y sugerencias */
+/* Buscador */
 .search-container {
   display: flex;
   flex-direction: column;
@@ -210,7 +210,6 @@ input[type="text"]:focus {
   flex: 1;
 }
 
-/* Fin del juego */
 .hidden {
   display: none !important;
 }
@@ -231,13 +230,14 @@ input[type="text"]:focus {
   margin-bottom: 16px;
 }
 
-/* Elemento Oculto de YouTube */
+/* Reproductor de YouTube transparente fuera de la vista */
 .yt-hidden {
-  position: absolute;
-  top: -9999px;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
+  position: fixed;
+  bottom: -200px;
+  right: -200px;
+  width: 200px;
+  height: 200px;
+  opacity: 0.01;
   pointer-events: none;
+  z-index: -999;
 }
