@@ -43,7 +43,7 @@ header h1 {
 header p {
   color: var(--text-secondary);
   font-size: 0.9rem;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 /* Intentos */
@@ -84,9 +84,63 @@ header p {
   color: var(--text-secondary);
 }
 
+/* Caja del Reproductor de YouTube y Carátula */
+.media-box {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.media-box iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #181818;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+  transition: opacity 0.5s ease;
+}
+
+.video-overlay .disc-icon {
+  font-size: 2.5rem;
+  margin-bottom: 6px;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.video-overlay p {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.video-overlay.revealed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
 /* Reproductor */
 .player-controls {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .progress-bar-container {
@@ -124,7 +178,6 @@ header p {
   width: 100%;
 }
 
-/* Reglas explícitas para el cursor del botón de reproducción */
 #play-btn:not([disabled]) {
   cursor: pointer !important;
   opacity: 1 !important;
@@ -236,27 +289,4 @@ input[type="text"]:focus {
 .game-over p {
   color: var(--text-secondary);
   margin-bottom: 16px;
-}
-
-/* Reproductor de YouTube transparente fuera de la vista */
-.yt-hidden {
-  position: fixed;
-  bottom: -200px;
-  right: -200px;
-  width: 200px;
-  height: 200px;
-  opacity: 0.01;
-  pointer-events: none;
-  z-index: -999;
-}
-
-/* Forzar estado del botón de reproducir */
-#play-btn:not([disabled]) {
-  cursor: pointer !important;
-  opacity: 1 !important;
-}
-
-#play-btn[disabled] {
-  cursor: not-allowed !important;
-  opacity: 0.5 !important;
 }
