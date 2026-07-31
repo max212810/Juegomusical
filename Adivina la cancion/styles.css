@@ -111,17 +111,11 @@ header p {
   border: none;
   border-radius: 24px;
   font-weight: bold;
-  cursor: pointer;
   transition: transform 0.1s ease, opacity 0.2s ease;
 }
 
 .btn:active {
   transform: scale(0.98);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .btn-primary {
@@ -130,15 +124,28 @@ header p {
   width: 100%;
 }
 
+/* Reglas explícitas para el cursor del botón de reproducción */
+#play-btn:not([disabled]) {
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+#play-btn[disabled] {
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
 .btn-secondary {
   background-color: var(--gray-box);
   color: #fff;
   border: 1px solid #444;
+  cursor: pointer;
 }
 
 .btn-success {
   background-color: #ffffff;
   color: #000;
+  cursor: pointer;
 }
 
 .btn-yt {
@@ -147,6 +154,7 @@ header p {
   text-decoration: none;
   display: inline-block;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 
 /* Buscador */
